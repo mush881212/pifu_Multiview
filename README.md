@@ -1,3 +1,5 @@
+# This code is re-implement from the following code
+
 # PIFu: Pixel-Aligned Implicit Function for High-Resolution Clothed Human Digitization
 
 [![report](https://img.shields.io/badge/arxiv-report-red)](https://arxiv.org/abs/1905.05172) [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1GFSsqP2BWz4gtq0e-nki00ZHSirXwFyY)
