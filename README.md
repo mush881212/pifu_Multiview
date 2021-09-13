@@ -165,3 +165,12 @@ Implict surface learning for sparse view human performance capture!
 For commercial queries, please contact:
 
 Hao Li: hao@hao-li.com ccto: saitos@usc.edu Baker!!
+
+
+@InProceedings{saito2019pifu,
+author = {Saito, Shunsuke and Huang, Zeng and Natsume, Ryota and Morishima, Shigeo and Kanazawa, Angjoo and Li, Hao},
+title = {PIFu: Pixel-Aligned Implicit Function for High-Resolution Clothed Human Digitization},
+booktitle = {The IEEE International Conference on Computer Vision (ICCV)},
+month = {October},
+year = {2019}
+}
