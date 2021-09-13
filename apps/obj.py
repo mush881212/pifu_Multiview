@@ -151,9 +151,6 @@ def trans(inp, outp):
     vmax = vertices.max(0)
     up_axis = 1 if (vmax-vmin).argmax() == 1 else 2
     
-    vmed = np.median(vertices, 0)
-    vmed[up_axis] = 0.5*(vmax[up_axis]+vmin[up_axis])
-    vertices = [i- vmed for i in vertices]
     R = make_rotate(0, math.radians(270), 0)
     vertices = [np.matmul(R, i) for i in vertices]
     save_obj_mesh(outp, vertices, faces, normdata, uvdata, facenorm, faceuv, mtlname, usemtl)
