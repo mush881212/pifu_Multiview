@@ -149,10 +149,17 @@ def trans(inp, outp):
     vertices, faces, normdata, uvdata, facenorm, faceuv, mtlname, usemtl = load_obj_mesh(inp)
     vmin = vertices.min(0)
     vmax = vertices.max(0)
-    up_axis = 1 if (vmax-vmin).argmax() == 1 else 2
-    
-    R = make_rotate(0, math.radians(270), 0)
-    vertices = [np.matmul(R, i) for i in vertices]
+    #up_axis = 1 if (vmax-vmin).argmax() == 1 else 2
+    vmed = np.median(vertices, 0)
+    vmed[1] = 0.5*(vmax[1]+vmin[1])
+    # alignment
+    vmove = [vmed[0], vmin[1], vmed[2]]
+    vertices = [i - vmove for i in vertices]
+    # Rotate
+    #R = make_rotate(0, math.radians(270), 0)
+    #vertices = [np.matmul(R, i) for i in vertices]
+    # Scale
+    vertices = [i*100 for i in vertices]
     save_obj_mesh(outp, vertices, faces, normdata, uvdata, facenorm, faceuv, mtlname, usemtl)
     
 

@@ -1,6 +1,8 @@
 import sys
 import os
 
+from numpy.lib.function_base import select
+
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 ROOT_PATH = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -60,29 +62,52 @@ class Evaluator:
         self.cuda = cuda
         self.netG = netG
         self.netC = netC
-
-    def load_image(self, image_path, mask_path):
+    
+    def load_image(self, images, masks):
         # Name
-        img_name = os.path.splitext(os.path.basename(image_path))[0]
+        img_name = os.path.splitext(os.path.basename(images[0]))[0]
         # Calib
         B_MIN = np.array([-1, -1, -1])
         B_MAX = np.array([1, 1, 1])
         projection_matrix = np.identity(4)
         projection_matrix[1, 1] = -1
-        calib = torch.Tensor(projection_matrix).float()
+        # modify
+        calibList = []
+        if self.opt.num_views == 1:
+            calibList.append(torch.Tensor(projection_matrix).float())
+        elif self.opt.num_views == 3:
+            extrin_60 = np.array([
+                [-0.5, 0, 0.866, 0], 
+                [0, 1, 0, 0],
+                [-0.866, 0, -0.5, 0], 
+                [0, 0, 0, 1]
+            ])
+            extrin_120 = np.array([
+                [-0.5, 0, -0.866, 0], 
+                [0, 1, 0, 0],
+                [0.866, 0, -0.5, 0], 
+                [0, 0, 0, 1]
+            ])
+            calibList.append(torch.Tensor(projection_matrix).float())
+            calibList.append(torch.Tensor(np.matmul(projection_matrix, extrin_60)).float())
+            calibList.append(torch.Tensor(np.matmul(projection_matrix, extrin_120)).float())
         # Mask
-        mask = Image.open(mask_path).convert('L')
-        mask = transforms.Resize(self.load_size)(mask)
-        mask = transforms.ToTensor()(mask).float()
-        # image
-        image = Image.open(image_path).convert('RGB')
-        image = self.to_tensor(image)
-        image = mask.expand_as(image) * image
+        maskList = []
+        imageList = []
+        for mask, image in zip(masks, images):
+            mask = Image.open(mask).convert('L')
+            mask = transforms.Resize(self.load_size)(mask)
+            mask = transforms.ToTensor()(mask).float()
+            maskList.append(mask)
+            image = Image.open(image).convert('RGB')
+            image = self.to_tensor(image)
+            image = mask.expand_as(image) * image
+            imageList.append(image)
         return {
             'name': img_name,
-            'img': image.unsqueeze(0),
-            'calib': calib.unsqueeze(0),
-            'mask': mask.unsqueeze(0),
+            'img': torch.stack(imageList, dim=0),
+            'calib': torch.stack(calibList, dim=0),
+            'mask': torch.stack(maskList, dim=0),
             'b_min': B_MIN,
             'b_max': B_MAX,
         }
@@ -112,12 +137,12 @@ if __name__ == '__main__':
     test_images = [f for f in test_images if ('png' in f or 'jpg' in f) and (not 'mask' in f)]
     test_masks = [f[:-4]+'_mask.png' for f in test_images]
 
-    print("num; ", len(test_masks))
+    print("Use view:", opt.num_views)
 
-    for image_path, mask_path in tqdm.tqdm(zip(test_images, test_masks)):
-        try:
-            print(image_path, mask_path)
-            data = evaluator.load_image(image_path, mask_path)
-            evaluator.eval(data, True)
-        except Exception as e:
-           print("error:", e.args)
+    #for image_path, mask_path in tqdm.tqdm(zip(test_images, test_masks)):
+    try:
+        data = evaluator.load_image(test_images, test_masks)
+        print(data)
+        evaluator.eval(data, True)
+    except Exception as e:
+        print("error:", e.args)
