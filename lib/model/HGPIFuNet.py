@@ -118,7 +118,7 @@ class HGPIFuNet(BasePIFuNet):
             # Expand classify result from (B, 1, Points) to (B*Views, 1, Points)
             classResultExpand = torch.zeros(classResult.shape[0] * self.num_views, classResult.shape[1], classResult.shape[2], device='cuda')
             for i in range(group):
-                classResultExpand[i * self.num_views : (i+1) * self.num_views, :, :] = classResult[i * self.num_views : (i+1) * self.num_views, :, :].repeat(self.num_views, 1, 1)
+                classResultExpand[i * self.num_views : (i+1) * self.num_views, :, :] = classResult[i : i+1, :, :].repeat(self.num_views, 1, 1)
             del classResult
             # out of image plane is always set to 0
             pred = in_img.float() * classResultExpand
