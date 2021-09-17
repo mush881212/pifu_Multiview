@@ -1,4 +1,5 @@
 # This code is re-implement from the following code
+# Only re-implement the Geometry part
 
 # PIFu: Pixel-Aligned Implicit Function for High-Resolution Clothed Human Digitization
 
