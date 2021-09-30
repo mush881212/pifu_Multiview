@@ -91,6 +91,29 @@ class Evaluator:
             calibList.append(torch.Tensor(projection_matrix).float())
             calibList.append(torch.Tensor(np.matmul(projection_matrix, extrin_60)).float())
             calibList.append(torch.Tensor(np.matmul(projection_matrix, extrin_120)).float())
+        elif self.opt.num_views == 4:
+            extrin_90 = np.array([
+                [0, 0, 1, 0], 
+                [0, 1, 0, 0],
+                [-1, 0, 0, 0], 
+                [0, 0, 0, 1]
+            ])
+            extrin_180 = np.array([
+                [-1, 0, 0, 0], 
+                [0, 1, 0, 0],
+                [0, 0, -1, 0], 
+                [0, 0, 0, 1]
+            ])
+            extrin_270 = np.array([
+                [0, 0, -1, 0], 
+                [0, 1, 0, 0],
+                [1, 0, 0, 0], 
+                [0, 0, 0, 1]
+            ])
+            calibList.append(torch.Tensor(projection_matrix).float())
+            calibList.append(torch.Tensor(np.matmul(projection_matrix, extrin_90)).float())
+            calibList.append(torch.Tensor(np.matmul(projection_matrix, extrin_180)).float())
+            calibList.append(torch.Tensor(np.matmul(projection_matrix, extrin_270)).float())
         # Mask
         maskList = []
         imageList = []
@@ -133,16 +156,19 @@ class Evaluator:
 if __name__ == '__main__':
     evaluator = Evaluator(opt)
 
-    test_images = glob.glob(os.path.join(opt.test_folder_path, '*'))
-    test_images = [f for f in test_images if ('png' in f or 'jpg' in f) and (not 'mask' in f)]
-    test_masks = [f[:-4]+'_mask.png' for f in test_images]
-
+    #test_images = glob.glob(os.path.join(opt.test_folder_path, '*'))
+    #test_images = [f for f in test_images if ('png' in f or 'jpg' in f) and (not 'mask' in f)]
+    
+    test_images = [opt.test_folder_path+'/0_0_00.jpg', opt.test_folder_path+'/90_0_00.jpg', opt.test_folder_path+'/180_0_00.jpg', opt.test_folder_path+'/270_0_00.jpg']
+    test_masks = [opt.test_folder_path+'/0_0_00_mask.png', opt.test_folder_path+'/90_0_00_mask.png', opt.test_folder_path+'/180_0_00_mask.png', opt.test_folder_path+'/270_0_00_mask.png']
+    
+    #test_images = [opt.test_folder_path+'/0_0_00.jpg']
+    #test_masks = [opt.test_folder_path+'/0_0_00.png']
     print("Use view:", opt.num_views)
 
     #for image_path, mask_path in tqdm.tqdm(zip(test_images, test_masks)):
     try:
         data = evaluator.load_image(test_images, test_masks)
-        print(data)
         evaluator.eval(data, True)
     except Exception as e:
         print("error:", e.args)

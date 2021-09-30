@@ -30,6 +30,7 @@ torch.cuda.empty_cache()
 # get options
 opt = BaseOptions().parse()
 f = open("loss.txt", "a")
+m = open("mse.txt", 'a')
 
 def train(opt):
     # set cuda
@@ -57,6 +58,7 @@ def train(opt):
     netG = HGPIFuNet(opt, projection_mode).to(device=cuda)
     optimizerG = torch.optim.RMSprop(netG.parameters(), lr=opt.learning_rate, momentum=0, weight_decay=0)
     lr = opt.learning_rate
+    
     print('Using Network: ', netG.name)
     
     def set_train():
@@ -64,7 +66,7 @@ def train(opt):
 
     def set_eval():
         netG.eval()
-
+        
     # load checkpoints
     if opt.load_netG_checkpoint_path is not None:
         print('loading for net G ...', opt.load_netG_checkpoint_path)
@@ -97,6 +99,7 @@ def train(opt):
         set_train()
         iter_data_time = time.time()
         for train_idx, train_data in enumerate(train_data_loader):
+            
             iter_start_time = time.time()
 
             # retrieve the data
@@ -163,7 +166,7 @@ def train(opt):
                 test_losses['IOU(test)'] = IOU
                 test_losses['prec(test)'] = prec
                 test_losses['recall(test)'] = recall
-
+                m.write('test MSE: ' +str(MSE)+ ' IOU: '+ str(IOU) +' prec: '+ str(prec)+' recall: '+str(recall)+'\n')
                 print('calc error (train) ...')
                 train_dataset.is_train = False
                 train_errors = calc_error(opt, netG, cuda, train_dataset, 100)
@@ -174,27 +177,27 @@ def train(opt):
                 test_losses['IOU(train)'] = IOU
                 test_losses['prec(train)'] = prec
                 test_losses['recall(train)'] = recall
-
+                m.write('train MSE: ' +str(MSE)+ ' IOU: '+ str(IOU) +' prec: '+ str(prec)+' recall: '+str(recall)+'\n')
             if not opt.no_gen_mesh:
                 print('generate mesh (test) ...')
-                for gen_idx in tqdm(range(opt.num_gen_mesh_test)):
-                    test_data = random.choice(test_dataset)
+                for gen_idx in tqdm(range(20)):
+                    test_data = test_dataset[gen_idx]
                     save_path = '%s/%s/test_eval_epoch%d_%s.obj' % (
-                        opt.results_path, "1", epoch, test_data['name'])
+                        opt.results_path, opt.name, epoch, test_data['name'])
                     gen_mesh(opt, netG, cuda, test_data, save_path)
 
                 print('generate mesh (train) ...')
                 train_dataset.is_train = False
-                for gen_idx in tqdm(range(opt.num_gen_mesh_test)):
-                    train_data = random.choice(train_dataset)
+                for gen_idx in tqdm(range(10)):
+                    train_data = train_dataset[gen_idx]
                     save_path = '%s/%s/train_eval_epoch%d_%s.obj' % (
-                        opt.results_path, "1", epoch, train_data['name'])
+                        opt.results_path, opt.name, epoch, train_data['name'])
                     gen_mesh(opt, netG, cuda, train_data, save_path)
                 train_dataset.is_train = True
     plt.plot(loss_values)
     plt.savefig('loss.png')
-    plt.show()
     f.close()
+    m.close()
 
 if __name__ == '__main__':
     train(opt)
