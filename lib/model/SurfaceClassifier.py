@@ -4,7 +4,7 @@ import torch.nn.functional as F
 
 
 class SurfaceClassifier(nn.Module):
-    def __init__(self, filter_channels, num_views=3, no_residual=True, last_op=None):
+    def __init__(self, filter_channels, num_views=4, no_residual=True, last_op=None):
         super(SurfaceClassifier, self).__init__()
 
         self.filters = []

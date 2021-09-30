@@ -129,7 +129,7 @@ class TrainDataset(Dataset):
         # The ids are an even distribution of num_views around view_id
         #view_ids = [self.yaw_list[(yid + len(self.yaw_list) // num_views * offset) % len(self.yaw_list)]
         #            for offset in range(num_views)]
-        view_ids=[0, 120, 240]
+        view_ids=[0, 90, 180, 270]
         if random_sample:
             view_ids = np.random.choice(self.yaw_list, num_views, replace=False)
 

@@ -1,5 +1,6 @@
-# This code is re-implement from PIFu: Pixel-Aligned Implicit Function for High-Resolution Clothed Human Digitization
+# Reimplement from PIFu: Pixel-Aligned Implicit Function for High-Resolution Clothed Human Digitization
 
-Only re-implement the Geometry part
+This code is for 4 view multi-view.
+
 
 The origin paper: "[PIFu: Pixel-Aligned Implicit Function for High-Resolution Clothed Human Digitization](https://shunsukesaito.github.io/PIFu/)"
