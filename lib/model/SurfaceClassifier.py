@@ -4,7 +4,9 @@ import torch.nn.functional as F
 
 
 class SurfaceClassifier(nn.Module):
+    # modify: multi-view setting num_view=4
     def __init__(self, filter_channels, num_views=4, no_residual=True, last_op=None):
+        #-------------------------#
         super(SurfaceClassifier, self).__init__()
 
         self.filters = []

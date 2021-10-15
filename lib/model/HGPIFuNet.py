@@ -86,9 +86,10 @@ class HGPIFuNet(BasePIFuNet):
         z = xyz[:, 2:3, :]
 
         in_img = (xy[:, 0] >= -1.0) & (xy[:, 0] <= 1.0) & (xy[:, 1] >= -1.0) & (xy[:, 1] <= 1.0)
-        #modify
+        
+        # modify: multi-view setting, originally have the same code, just move it to here
         in_img = in_img[:, None]
-        ##
+        #-------------------------#
 
         z_feat = self.normalizer(z, calibs=calibs)
 
@@ -106,7 +107,7 @@ class HGPIFuNet(BasePIFuNet):
 
             point_local_feat = torch.cat(point_local_feat_list, 1)
             
-            # modify : average pooling for extracted image feature
+            # modify : average pooling for extracted image feature #
             group = point_local_feat.shape[0]//self.num_views
             for i in range(group):
                 mean = torch.mean(point_local_feat[i * self.num_views: (i+1)*self.num_views, :, :], dim=0)
@@ -129,6 +130,7 @@ class HGPIFuNet(BasePIFuNet):
                 pred_final[i, :, :] = pred_sum/self.num_views
                 
             self.intermediate_preds_list.append(pred_final)
+            #--------------------------------------------------------#
 
         self.preds = self.intermediate_preds_list[-1]
 

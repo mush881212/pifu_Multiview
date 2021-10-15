@@ -21,16 +21,21 @@ from lib.train_util import *
 from lib.data import *
 from lib.model import *
 from lib.geometry import index
+
+# modify: collect garbage
 import gc
 
 gc.collect()
-
 torch.cuda.empty_cache()
+#-------------------------#
 
 # get options
 opt = BaseOptions().parse()
+
+# modify : write results file
 f = open("loss.txt", "a")
 m = open("mse.txt", 'a')
+#--------------------------#
 
 def train(opt):
     # set cuda
@@ -91,9 +96,13 @@ def train(opt):
 
     # training
     start_epoch = 0 if not opt.continue_train else max(opt.resume_epoch,0)
+    # modify : write results
     loss_values = []
+    #--------------------------#
     for epoch in range(start_epoch, opt.num_epoch):
+        # modify : write results
         running_loss = 0.0
+        #--------------------------#
         epoch_start_time = time.time()
 
         set_train()
@@ -119,11 +128,12 @@ def train(opt):
             error.backward()
             optimizerG.step()
 
+            # modify : write results
             running_loss =+ error.item()
             if train_idx % 60 == 0:
                 loss_values.append(running_loss/60)
                 f.write(str(running_loss/60)+'\n')
-
+            #--------------------------#
 
             iter_net_time = time.time()
             eta = ((iter_net_time - epoch_start_time) / (train_idx + 1)) * len(train_data_loader) - (
@@ -166,7 +176,10 @@ def train(opt):
                 test_losses['IOU(test)'] = IOU
                 test_losses['prec(test)'] = prec
                 test_losses['recall(test)'] = recall
+                # modify : write results
                 m.write('test MSE: ' +str(MSE)+ ' IOU: '+ str(IOU) +' prec: '+ str(prec)+' recall: '+str(recall)+'\n')
+                #--------------------------#
+
                 print('calc error (train) ...')
                 train_dataset.is_train = False
                 train_errors = calc_error(opt, netG, cuda, train_dataset, 100)
@@ -177,7 +190,10 @@ def train(opt):
                 test_losses['IOU(train)'] = IOU
                 test_losses['prec(train)'] = prec
                 test_losses['recall(train)'] = recall
+                # modify : write results
                 m.write('train MSE: ' +str(MSE)+ ' IOU: '+ str(IOU) +' prec: '+ str(prec)+' recall: '+str(recall)+'\n')
+                #--------------------------#
+
             if not opt.no_gen_mesh:
                 print('generate mesh (test) ...')
                 for gen_idx in tqdm(range(20)):
@@ -194,10 +210,13 @@ def train(opt):
                         opt.results_path, opt.name, epoch, train_data['name'])
                     gen_mesh(opt, netG, cuda, train_data, save_path)
                 train_dataset.is_train = True
+    
+    # modify : write results
     plt.plot(loss_values)
     plt.savefig('loss.png')
     f.close()
     m.close()
+    #--------------------------#
 
 if __name__ == '__main__':
     train(opt)

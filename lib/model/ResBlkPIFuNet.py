@@ -72,7 +72,8 @@ class ResBlkPIFuNet(BasePIFuNet):
         point_local_feat_list = [self.index(self.im_feat, xy), z_feat]
         # [B, Feat_all, N]
         point_local_feat = torch.cat(point_local_feat_list, 1)
-        #modify
+        
+        #modify: multi-view setting
         group = point_local_feat.shape[0]//self.opt.num_views
         for i in range(group):
             mean = torch.mean(point_local_feat[i * self.opt.num_views: (i+1)*self.opt.num_views, :, :], dim=0)
@@ -80,6 +81,7 @@ class ResBlkPIFuNet(BasePIFuNet):
             point_local_feat[i * self.opt.num_views: (i+1) * self.opt.num_views, :, :] = mean.repeat(self.opt.num_views, 1, 1)
         del mean
         self.preds = self.surface_classifier(point_local_feat)
+        #-----------------------------#
 
     def forward(self, images, im_feat, points, calibs, transforms=None, labels=None):
         self.filter(images)

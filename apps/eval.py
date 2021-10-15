@@ -71,7 +71,8 @@ class Evaluator:
         B_MAX = np.array([1, 1, 1])
         projection_matrix = np.identity(4)
         projection_matrix[1, 1] = -1
-        # modify
+        
+        # modify: multi-view setting
         calibList = []
         if self.opt.num_views == 1:
             calibList.append(torch.Tensor(projection_matrix).float())
@@ -134,6 +135,7 @@ class Evaluator:
             'b_min': B_MIN,
             'b_max': B_MAX,
         }
+        #--------------------------------------#
 
     def eval(self, data, use_octree=False):
         '''
@@ -159,9 +161,11 @@ if __name__ == '__main__':
     #test_images = glob.glob(os.path.join(opt.test_folder_path, '*'))
     #test_images = [f for f in test_images if ('png' in f or 'jpg' in f) and (not 'mask' in f)]
     
+    # modify: multi-view setting #
     test_images = [opt.test_folder_path+'/0_0_00.jpg', opt.test_folder_path+'/90_0_00.jpg', opt.test_folder_path+'/180_0_00.jpg', opt.test_folder_path+'/270_0_00.jpg']
     test_masks = [opt.test_folder_path+'/0_0_00_mask.png', opt.test_folder_path+'/90_0_00_mask.png', opt.test_folder_path+'/180_0_00_mask.png', opt.test_folder_path+'/270_0_00_mask.png']
-    
+    #--------------------------#
+
     #test_images = [opt.test_folder_path+'/0_0_00.jpg']
     #test_masks = [opt.test_folder_path+'/0_0_00.png']
     print("Use view:", opt.num_views)

@@ -21,15 +21,22 @@ from lib.train_util import *
 from lib.data import *
 from lib.model import *
 from lib.geometry import index
+
+# modify: collect garbage
 import gc
 
 gc.collect()
-
 torch.cuda.empty_cache()
+#-------------------------#
+
 # get options
 opt = BaseOptions().parse()
+
+# modify : write results file
 f = open("loss.txt", "a")
 m = open("mse.txt", 'a')
+#--------------------------#
+
 def train_color(opt):
     # set cuda
     cuda = torch.device('cuda:%d' % opt.gpu_id)
@@ -104,11 +111,15 @@ def train_color(opt):
 
     # training
     start_epoch = 0 if not opt.continue_train else max(opt.resume_epoch,0)
+    
+    # modify : write results
     loss_values = []
+    #--------------------------#
     for epoch in range(start_epoch, opt.num_epoch):
+        # modify : write results
         running_loss = 0.0
+        #--------------------------#
         epoch_start_time = time.time()
-
         set_train()
         iter_data_time = time.time()
         for train_idx, train_data in enumerate(train_data_loader):
@@ -133,10 +144,12 @@ def train_color(opt):
             error.backward()
             optimizerC.step()
 
+            # modify : write results
             running_loss =+ error.item()
             if train_idx % 60 == 0:
                 loss_values.append(running_loss/60)
                 f.write(str(running_loss/60)+'\n')
+            #--------------------------#
 
             iter_net_time = time.time()
             eta = ((iter_net_time - epoch_start_time) / (train_idx + 1)) * len(train_data_loader) - (
@@ -173,7 +186,9 @@ def train_color(opt):
                 print('calc error (test) ...')
                 test_color_error = calc_error_color(opt, netG, netC, cuda, test_dataset, 100)
                 print('eval test | color error:', test_color_error)
+                # modify : write results
                 m.write('test MSE: ' +str(test_color_error)+'\n')
+                #--------------------------#
                 test_losses['test_color'] = test_color_error
 
                 print('calc error (train) ...')
@@ -181,7 +196,9 @@ def train_color(opt):
                 train_color_error = calc_error_color(opt, netG, netC, cuda, train_dataset, 100)
                 train_dataset.is_train = True
                 print('eval train | color error:', train_color_error)
+                # modify : write results
                 m.write('train MSE: ' +str(train_color_error)+'\n')
+                #--------------------------#
                 test_losses['train_color'] = train_color_error
 
             if not opt.no_gen_mesh:
@@ -198,9 +215,11 @@ def train_color(opt):
                     save_path = '%s/%s/train_eval_epoch%d_%s.obj' % (opt.results_path, opt.name, epoch, train_data['name'])
                     gen_mesh_color(opt, netG, netC, cuda, train_data, save_path)
                 train_dataset.is_train = True
+    # modify : write results
     plt.plot(loss_values)
     plt.savefig('loss.png')
     f.close()
     m.close()
+    #--------------------------#
 if __name__ == '__main__':
     train_color(opt)
