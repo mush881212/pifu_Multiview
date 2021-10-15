@@ -106,8 +106,13 @@ class BaseOptions():
 
         # path
         parser.add_argument('--checkpoints_path', type=str, default='./checkpoints', help='path to save checkpoints')
+
+        # modify : change model checkpoint if you want to use my pretrain
         parser.add_argument('--load_netG_checkpoint_path', type=str, default='./checkpoints/net_G', help='path to save checkpoints')
         parser.add_argument('--load_netC_checkpoint_path', type=str, default='./checkpoints/net_C', help='path to save checkpoints')
+        #parser.add_argument('--load_netG_checkpoint_path', type=str, default='./checkpoints/example/netG_epoch_1', help='path to save checkpoints')
+        #parser.add_argument('--load_netC_checkpoint_path', type=str, default='./checkpoints/example/netC_epoch_2', help='path to save checkpoints')
+        #------------------------------------#
         parser.add_argument('--results_path', type=str, default='./results', help='path to save results ply')
         parser.add_argument('--load_checkpoint_path', type=str, help='path to save results ply')
         parser.add_argument('--single', type=str, default='', help='single data for training')
